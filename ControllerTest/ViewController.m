@@ -14,7 +14,7 @@
 
 @implementation ViewController
 
--(void)log: (NSString*)text
+- (void)log:(NSString*)text
 {
 	_textView.text = [NSString stringWithFormat:@"%@%@\n", _textView.text, text];
 }
@@ -28,14 +28,14 @@
 	[self initGameController];
 }
 
--(void) handleConnected:(NSNotification *)note
+- (void)handleConnected:(NSNotification *)note
 {
 	[self log: @"Connected"];
 	
 	[self setUpDevices];
 }
 
--(void) setUpDevices
+- (void)setUpDevices
 {
 	NSArray* controllers = GCController.controllers;
 	
@@ -69,12 +69,12 @@
 	}
 }
 
--(void) handleDisconnected:(NSNotification *)note
+- (void)handleDisconnected:(NSNotification *)note
 {
 	[self log: @"Disconnected"];
 }
 
--(void) initGameController
+- (void)initGameController
 {
 	[self log: @"Searching for devices"];
 	

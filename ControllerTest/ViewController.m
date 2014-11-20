@@ -17,6 +17,7 @@
 - (void)log:(NSString*)text
 {
 	_textView.text = [NSString stringWithFormat:@"%@%@\n", _textView.text, text];
+	NSLog(@"%@", text);
 }
 
 - (void)viewDidLoad
@@ -32,40 +33,43 @@
 {
 	[self log: @"Connected"];
 	
-	[self setUpDevices];
+	[self setUpDevice: note.object];
+}
+
+- (void)setUpDevice:(GCController*)controller
+{
+	NSLog(@"Extended gamepad: %@", controller.extendedGamepad ? @"YES" : @"NO");
+	NSLog(@"Attached to device: %@", controller.attachedToDevice ? @"YES" : @"NO");
+
+	[self log: controller.vendorName];
+	
+
+	controller.gamepad.dpad.valueChangedHandler = ^(GCControllerDirectionPad* dpad, float xValue, float yValue) {
+		
+		_dPadView.text = [NSString stringWithFormat: @"D pad: %f, %f", xValue, yValue];
+	};
+	
+	controller.gamepad.buttonA.valueChangedHandler = ^(GCControllerButtonInput* button, float value, BOOL pressed) {
+		
+		_aButtonView.text = [NSString stringWithFormat: @"A: %f, %d", value, pressed];
+	};
+	
+	if (controller.extendedGamepad)
+	{
+		controller.extendedGamepad.leftThumbstick.valueChangedHandler = ^(GCControllerDirectionPad* dpad, float xValue, float yValue) {
+			_dPadView.text = [NSString stringWithFormat: @"Left thumbstick: %f, %f", xValue, yValue];
+		};
+	}
 }
 
 - (void)setUpDevices
 {
 	NSArray* controllers = GCController.controllers;
-	
+
 	//search for the first attached controller
 	for (GCController* controller in controllers)
 	{
-		[self log: [NSString stringWithFormat: @"%@ (%d)", controller.vendorName, controller.attachedToDevice]];
-		
-		if (controller.attachedToDevice)
-		{
-			controller.gamepad.dpad.valueChangedHandler = ^(GCControllerDirectionPad* dpad, float xValue, float yValue) {
-				
-				_dPadView.text = [NSString stringWithFormat: @"D pad: %f, %f", xValue, yValue];
-			};
-			
-			controller.gamepad.buttonA.valueChangedHandler = ^(GCControllerButtonInput* button, float value, BOOL pressed) {
-				
-				_aButtonView.text = [NSString stringWithFormat: @"A: %f, %d", value, pressed];
-			};
-			
-			if (controller.extendedGamepad)
-			{
-				controller.extendedGamepad.leftThumbstick.valueChangedHandler = ^(GCControllerDirectionPad* dpad, float xValue, float yValue) {
-					_dPadView.text = [NSString stringWithFormat: @"Left thumbstick: %f, %f", xValue, yValue];
-				};
-			}
-			
-			
-			break;
-		}
+		[self setUpDevice:controller];
 	}
 }
 
